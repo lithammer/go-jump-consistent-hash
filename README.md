@@ -6,6 +6,16 @@ Go implementation of the jump consistent hash algorithm by John Lamping and Eric
 
 [1] http://arxiv.org/pdf/1406.2294v1.pdf
 
+## Usage
+
+```go
+import jump "github.com/renstrom/go-jump-consistent-hash"
+
+func main() {
+    jump.Hash(256, 1024)  // 520
+}
+```
+
 ## License
 
 MIT
