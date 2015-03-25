@@ -1,6 +1,9 @@
 package jump
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+)
 
 func TestHashInBucketRange(t *testing.T) {
 	h := Hash(1, 1)
@@ -43,7 +46,7 @@ func TestNegativeBucket(t *testing.T) {
 }
 
 func ExampleHash() {
-	Hash(256, 1024)
+	fmt.Print(Hash(256, 1024))
 	// Output: 520
 }
 
