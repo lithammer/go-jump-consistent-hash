@@ -41,3 +41,8 @@ func TestNegativeBucket(t *testing.T) {
 		t.Error("expected bucket to be 0, got", h)
 	}
 }
+
+func ExampleHash() {
+	Hash(256, 1024)
+	// Output: 520
+}
