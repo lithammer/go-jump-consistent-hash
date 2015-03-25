@@ -46,3 +46,9 @@ func ExampleHash() {
 	Hash(256, 1024)
 	// Output: 520
 }
+
+func BenchmarkHash(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		Hash(uint64(i), int32(i))
+	}
+}
