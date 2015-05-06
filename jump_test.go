@@ -5,43 +5,29 @@ import (
 	"testing"
 )
 
-func TestHashInBucketRange(t *testing.T) {
-	h := Hash(1, 1)
-	if h != 0 {
-		t.Error("expected bucket to be 0, got", h)
-	}
-
-	h = Hash(42, 57)
-	if h != 43 {
-		t.Error("expected bucket to be 43, got", h)
-	}
-
-	h = Hash(0xDEAD10CC, 1)
-	if h != 0 {
-		t.Error("expected bucket to be 0, got", h)
-	}
-
-	h = Hash(0xDEAD10CC, 666)
-	if h != 361 {
-		t.Error("expected bucket to be 361, got", h)
-	}
-
-	h = Hash(256, 1024)
-	if h != 520 {
-		t.Error("expected bucket to be 520, got", h)
-	}
-
+type testVector struct {
+	key     uint64
+	buckets int32
+	output  int32
 }
 
-func TestNegativeBucket(t *testing.T) {
-	h := Hash(0, -10)
-	if h != 0 {
-		t.Error("expected bucket to be 0, got", h)
-	}
+var jumpTestVectors = []testVector{
+	{1, 1, 0},
+	{42, 57, 43},
+	{0xDEAD10CC, 1, 0},
+	{0xDEAD10CC, 666, 361},
+	{256, 1024, 520},
+	// Test negative values
+	{0, -10, 0},
+	{0xDEAD10CC, -666, 0},
+}
 
-	h = Hash(0xDEAD10CC, -666)
-	if h != 0 {
-		t.Error("expected bucket to be 0, got", h)
+func TestJumpHash(t *testing.T) {
+	for _, v := range jumpTestVectors {
+		h := Hash(v.key, v.buckets)
+		if h != v.output {
+			t.Errorf("expected bucket to be %d, got %d", v.output, h)
+		}
 	}
 }
 
