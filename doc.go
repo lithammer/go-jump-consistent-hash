@@ -1,6 +1,6 @@
 // Example
 //
-//  jump.Hash(256, 1024)  // 520
+//  h := jump.Hash(256, 1024)  // h = 520
 //
 // Reference C++ implementation[1]
 //

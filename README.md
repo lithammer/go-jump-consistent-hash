@@ -13,7 +13,7 @@ Go implementation of the jump consistent hash algorithm[1] by John Lamping and E
 import jump "github.com/renstrom/go-jump-consistent-hash"
 
 func main() {
-    jump.Hash(256, 1024)  // 520
+    h := jump.Hash(256, 1024)  // h = 520
 }
 ```
 
