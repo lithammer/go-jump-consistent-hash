@@ -1,7 +1,7 @@
 package jump
 
 // Hash takes a 64 bit key and the number of buckets. It outputs a bucket
-// number in the range [0, buckets].
+// number in the range [0, buckets).
 func Hash(key uint64, buckets int32) int32 {
 	var b, j int64
 
