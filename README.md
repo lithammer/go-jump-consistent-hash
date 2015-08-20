@@ -17,6 +17,37 @@ func main() {
 }
 ```
 
+Includes a helper function for using a `string` as key instead of an `uint64`. This requires a hasher that computes the string into a format accepted by `Hash()`. Such a hasher that uses [CRC-64 (ECMA)](https://en.wikipedia.org/wiki/Cyclic_redundancy_check) is also included for convenience.
+
+```go
+h := jump.HashString("127.0.0.1", 8, jump.CRC64)  // h = 7
+```
+
+If you want to use your own algorithm, you must implement the `Hasher` interface, which is a subset of the `hash.Hash64` interface available in the standard library.
+
+Here's an example of a custom `Hasher` that uses Google's [FarmHash](https://github.com/google/farmhash) algorithm (the successor of CityHash) to compute the final key.
+
+```go
+type FarmHash struct {
+    buf bytes.Buffer
+}
+
+func (f *FarmHash) Write(p []byte) (n int, err error) {
+    return f.buf.Write(p)
+}
+
+func (f *FarmHash) Reset() {
+    f.buf.Reset()
+}
+
+func (f *FarmHash) Sum64() uint64 {
+    // https://github.com/dgryski/go-farm
+    return farm.Hash64(f.buf.Bytes())
+}
+
+h := jump.HashString("127.0.0.1", 8, &FarmHash{})  // h = 5
+```
+
 ## License
 
 MIT
