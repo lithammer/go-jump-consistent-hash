@@ -73,8 +73,7 @@ func (h *Hasher) Hash(key string) int {
 	return int(HashString(key, h.n, h.h))
 }
 
-// Create some KeyHasher available in the standard library for use with
-// HashString().
+// KeyHashers available in the standard library for use with HashString() and Hasher.
 var (
 	// CRC32 uses the 32-bit Cyclic Redundancy Check (CRC-32) with the IEEE
 	// polynomial.
