@@ -23,9 +23,16 @@ Includes a helper function for using a `string` as key instead of an `uint64`. T
 h := jump.HashString("127.0.0.1", 8, jump.CRC64)  // h = 7
 ```
 
-If you want to use your own algorithm, you must implement the `Hasher` interface, which is a subset of the `hash.Hash64` interface available in the standard library.
+In reality though you probably want to use a `Hasher` so you won't have to repeat the bucket size and which key hasher used. It also uses more convenient types, like `int` instead of `int32`.
 
-Here's an example of a custom `Hasher` that uses Google's [FarmHash](https://github.com/google/farmhash) algorithm (the successor of CityHash) to compute the final key.
+```go
+hasher := jump.New(8, jump.CRC64)
+h := hasher.Hash("127.0.0.1")  // h = 7
+```
+
+If you want to use your own algorithm, you must implement the `KeyHasher` interface, which is a subset of the `hash.Hash64` interface available in the standard library.
+
+Here's an example of a custom `KeyHasher` that uses Google's [FarmHash](https://github.com/google/farmhash) algorithm (the successor of CityHash) to compute the final key.
 
 ```go
 type FarmHash struct {
@@ -45,7 +52,8 @@ func (f *FarmHash) Sum64() uint64 {
     return farm.Hash64(f.buf.Bytes())
 }
 
-h := jump.HashString("127.0.0.1", 8, &FarmHash{})  // h = 5
+hasher := jump.New(8, &FarmHash{})
+h := hasher.Hash("127.0.0.1")  // h = 5
 ```
 
 ## License

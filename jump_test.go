@@ -38,7 +38,7 @@ var jumpStringTestVectors = []struct {
 	hasher   hash.Hash64
 	expected int32
 }{
-	{"localhost", 10, CRC64, 6},
+	{"localhost", 10, CRC32, 9},
 	{"ёлка", 10, CRC64, 6},
 	{"ветер", 10, FNV1, 3},
 	{"中国", 10, FNV1a, 5},
@@ -49,6 +49,17 @@ func TestJumpHashString(t *testing.T) {
 	for _, v := range jumpStringTestVectors {
 		h := HashString(v.key, v.buckets, v.hasher)
 		if h != v.expected {
+			t.Errorf("expected bucket for key=%s to be %d, got %d",
+				strconv.Quote(v.key), v.expected, h)
+		}
+	}
+}
+
+func TestHasher(t *testing.T) {
+	for _, v := range jumpStringTestVectors {
+		hasher := New(int(v.buckets), v.hasher)
+		h := hasher.Hash(v.key)
+		if int32(h) != v.expected {
 			t.Errorf("expected bucket for key=%s to be %d, got %d",
 				strconv.Quote(v.key), v.expected, h)
 		}
@@ -68,6 +79,13 @@ func ExampleHashString() {
 func BenchmarkHash(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		Hash(uint64(i), int32(i))
+	}
+}
+
+func BenchmarkHashStringCRC32(b *testing.B) {
+	s := "Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat."
+	for i := 0; i < b.N; i++ {
+		HashString(s, int32(i), CRC32)
 	}
 }
 
