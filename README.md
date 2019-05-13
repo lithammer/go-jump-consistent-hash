@@ -20,13 +20,13 @@ func main() {
 Includes a helper function for using a `string` as key instead of an `uint64`. This requires a hasher that computes the string into a format accepted by `Hash()`. Such a hasher that uses [CRC-64 (ECMA)](https://en.wikipedia.org/wiki/Cyclic_redundancy_check) is also included for convenience.
 
 ```go
-h := jump.HashString("127.0.0.1", 8, jump.CRC64)  // h = 7
+h := jump.HashString("127.0.0.1", 8, jump.NewCRC64())  // h = 7
 ```
 
 In reality though you probably want to use a `Hasher` so you won't have to repeat the bucket size and which key hasher used. It also uses more convenient types, like `int` instead of `int32`.
 
 ```go
-hasher := jump.New(8, jump.CRC64)
+hasher := jump.New(8, jump.NewCRC64())
 h := hasher.Hash("127.0.0.1")  // h = 7
 ```
 
