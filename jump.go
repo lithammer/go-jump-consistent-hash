@@ -6,6 +6,7 @@ import (
 	"hash/crc64"
 	"hash/fnv"
 	"io"
+	"sync"
 )
 
 // Hash takes a 64 bit key and the number of buckets. It outputs a bucket
@@ -29,6 +30,9 @@ func Hash(key uint64, buckets int32) int32 {
 
 // HashString takes string as key instead of an int and uses a KeyHasher to
 // generate a key compatible with Hash().
+//
+// Reusing a KeyHasher instance in a concurrent environment can lead to
+// undefined behaviour. Use jump.New(int, KeyHasher) instead.
 func HashString(key string, buckets int32, h KeyHasher) int32 {
 	h.Reset()
 	_, err := io.WriteString(h, key)
@@ -55,12 +59,14 @@ type KeyHasher interface {
 // Hasher represents a jump consistent hasher using a string as key.
 type Hasher struct {
 	n int32
+
+	m sync.Mutex // Protect KeyHasher.Reset() since it's not thread safe.
 	h KeyHasher
 }
 
-// New returns a new instance of of Hasher.
+// New returns a new instance of Hasher.
 func New(n int, h KeyHasher) *Hasher {
-	return &Hasher{int32(n), h}
+	return &Hasher{int32(n), sync.Mutex{}, h}
 }
 
 // N returns the number of buckets the hasher can assign to.
@@ -70,7 +76,12 @@ func (h *Hasher) N() int {
 
 // Hash returns the integer hash for the given key.
 func (h *Hasher) Hash(key string) int {
-	return int(HashString(key, h.n, h.h))
+	// Lock to prevent concurrent calls to KeyHasher.Reset() which can corrupt
+	// the underlying hash buffer.
+	h.m.Lock()
+	val := HashString(key, h.n, h.h)
+	h.m.Unlock()
+	return int(val)
 }
 
 // KeyHashers available in the standard library for use with HashString() and Hasher.

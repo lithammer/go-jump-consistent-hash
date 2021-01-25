@@ -3,7 +3,9 @@ package jump
 import (
 	"fmt"
 	"hash"
+	"hash/fnv"
 	"strconv"
+	"sync"
 	"testing"
 )
 
@@ -63,6 +65,35 @@ func TestHasher(t *testing.T) {
 			t.Errorf("expected bucket for key=%s to be %d, got %d",
 				strconv.Quote(v.key), v.expected, h)
 		}
+	}
+}
+
+func TestConcurrentJumpHashString(t *testing.T) {
+	hasher := New(2, fnv.New64a())
+
+	errCount := make(chan int, 1000)
+	var wg sync.WaitGroup
+
+	for i := 0; i < 1000; i++ {
+		wg.Add(1)
+		go func(i int) {
+			defer wg.Done()
+			res := hasher.Hash("123456789") // res == 0
+			if res != 0 {
+				errCount <- 1
+			}
+		}(i)
+	}
+	wg.Wait()
+	close(errCount)
+
+	s := 0
+	for j := range errCount {
+		s += j
+	}
+
+	if s > 0 {
+		t.Errorf("expected sum to be 0, got %d", s)
 	}
 }
 
