@@ -9,8 +9,8 @@ jobs:
           - ubuntu-latest
           - windows-latest
         go-version:
-          - '1.14'
           - '1.15'
+          - '1.16'
     runs-on: ${{ matrix.platform }}
     steps:
       - name: Setup Go
